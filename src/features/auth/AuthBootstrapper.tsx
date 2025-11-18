@@ -2,6 +2,7 @@
 
 import { ReactNode, useEffect } from "react";
 
+import { authStorage } from "@/features/auth/authStorage";
 import { sessionCleared, sessionEstablished } from "@/features/auth/authSlice";
 import { useRefreshMutation } from "@/services/authApi";
 import { useAppDispatch } from "@/store/hooks";
@@ -16,6 +17,11 @@ const AuthBootstrapper = ({ children }: Props) => {
 
     useEffect(() => {
         let mounted = true;
+
+        const storedSession = authStorage.load();
+        if (storedSession?.accessToken) {
+            dispatch(sessionEstablished(storedSession));
+        }
 
         refresh(undefined)
             .unwrap()

@@ -15,6 +15,7 @@ export interface AuthState {
     accessToken: string | null;
     isAuthenticated: boolean;
     status: "idle" | "loading" | "succeeded" | "failed";
+    initialized: boolean;
     error: string | null;
 }
 
@@ -23,6 +24,7 @@ const initialState: AuthState = {
     accessToken: null,
     isAuthenticated: false,
     status: "idle",
+    initialized: false,
     error: null,
 };
 
@@ -43,6 +45,7 @@ const authSlice = createSlice({
             state.status = "succeeded";
             state.isAuthenticated = true;
             state.error = null;
+            state.initialized = true;
 
             const payload = action.payload;
             if (payload?.user) {
@@ -58,6 +61,17 @@ const authSlice = createSlice({
             state.isAuthenticated = false;
             state.status = "idle";
             state.error = null;
+            state.initialized = true;
+        },
+        setAuthInitialized(state, action: PayloadAction<boolean | undefined>) {
+            state.initialized = action.payload ?? true;
+            if (!state.initialized) {
+                state.isAuthenticated = false;
+                state.accessToken = null;
+                state.user = null;
+                state.status = "idle";
+                state.error = null;
+            }
         },
     },
 });
@@ -67,6 +81,7 @@ export const {
     authRequestFailed,
     sessionEstablished,
     sessionCleared,
+    setAuthInitialized,
 } = authSlice.actions;
 
 export default authSlice.reducer;

@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, useEffect, useMemo, useState } from "react";
+import { ReactNode, useEffect, useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useAppSelector } from "@/store/hooks";
@@ -14,8 +14,7 @@ const ProtectedRoute = ({ children, requireAuth = true }: Props) => {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
-    const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
-    const [checking, setChecking] = useState(true);
+    const { isAuthenticated, initialized } = useAppSelector((state) => state.auth);
 
     const redirectTarget = useMemo(() => {
         const query = searchParams?.toString();
@@ -23,23 +22,20 @@ const ProtectedRoute = ({ children, requireAuth = true }: Props) => {
     }, [pathname, searchParams]);
 
     useEffect(() => {
-        if (!requireAuth) {
-            setChecking(false);
+        if (!requireAuth || !initialized) {
             return;
         }
 
         if (!isAuthenticated) {
             router.replace(`/login?redirect=${encodeURIComponent(redirectTarget)}`);
-        } else {
-            setChecking(false);
         }
-    }, [redirectTarget, isAuthenticated, requireAuth, router]);
+    }, [initialized, redirectTarget, isAuthenticated, requireAuth, router]);
 
     if (!requireAuth) {
         return <>{children}</>;
     }
 
-    if (checking || !isAuthenticated) {
+    if (!initialized || !isAuthenticated) {
         return (
             <div className="rounded-md border border-slate-200 bg-white p-6 text-center text-sm text-slate-600">
                 Validando sesión...

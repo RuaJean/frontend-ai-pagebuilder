@@ -8,11 +8,22 @@ const Header = () => (
             <Link href="/" className="text-lg font-semibold text-slate-900">
                 AiPageBuilder
             </Link>
-            <nav className="text-sm text-slate-600">
-                <Link href="/websites" className="hover:text-slate-900">
-                    Sitios
+            <div className="flex items-center gap-4">
+                <nav className="flex items-center gap-4 text-sm text-slate-600">
+                    <Link href="/websites" className="font-medium hover:text-slate-900">
+                        Sitios
+                    </Link>
+                    <Link href="/websites/create" className="font-medium hover:text-slate-900">
+                        Crear sitio
+                    </Link>
+                </nav>
+                <Link
+                    href="/websites/create"
+                    className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
+                >
+                    + Nuevo sitio
                 </Link>
-            </nav>
+            </div>
         </div>
     </header>
 );
