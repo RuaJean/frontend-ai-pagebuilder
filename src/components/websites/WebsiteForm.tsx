@@ -27,6 +27,33 @@ const initialState: FormState = {
 
 type FieldKey = keyof GenerateWebsiteRequest | "additionalNotes";
 
+const serializeClientSocials = (rawValue?: string | null): string | null => {
+    if (!rawValue) {
+        return null;
+    }
+
+    const trimmed = rawValue.trim();
+    if (!trimmed) {
+        return null;
+    }
+
+    try {
+        JSON.parse(trimmed);
+        return trimmed;
+    } catch {
+        const values = trimmed
+            .split(/[\n,;]/)
+            .map((entry) => entry.trim())
+            .filter(Boolean);
+
+        if (values.length === 0) {
+            return null;
+        }
+
+        return JSON.stringify(values);
+    }
+};
+
 type WebsiteFormProps = {
     isSubmitting?: boolean;
     backendErrors?: string | null;
@@ -60,7 +87,7 @@ const WebsiteForm = ({ isSubmitting = false, backendErrors, onSubmit }: WebsiteF
             clientName: form.clientName,
             clientEmail: form.clientEmail,
             clientWhatsapp: form.clientWhatsapp || null,
-            clientSocials: form.clientSocials || null,
+            clientSocials: serializeClientSocials(form.clientSocials),
             industry: form.industry || null,
             description: form.description || null,
             targetAudience: form.targetAudience || null,
