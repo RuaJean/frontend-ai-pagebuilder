@@ -1,5 +1,6 @@
 import { api } from "./api";
-import type { components, paths } from "../types/openapi";
+import type { components, paths } from "@/types/openapi";
+import type { WebsiteListItem, WebsitesResponse } from "@/types/websites";
 
 type ListWebsitesQuery = paths["/api/websites"]["get"]["parameters"]["query"];
 type CreateWebsiteRequest = components["schemas"]["CreateWebsiteRequest"];
@@ -17,7 +18,7 @@ type PublishWebsitePath = paths["/api/websites/{id}/publish"]["patch"]["paramete
 
 export const websitesApi = api.injectEndpoints({
     endpoints: (build) => ({
-        getWebsites: build.query<unknown, ListWebsitesQuery>({
+        getWebsites: build.query<WebsitesResponse, ListWebsitesQuery>({
             query: (params) => {
                 const baseRequest = {
                     url: "/api/websites",
