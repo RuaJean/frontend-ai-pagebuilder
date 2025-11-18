@@ -19,9 +19,15 @@ const AuthBootstrapper = ({ children }: Props) => {
 
         refresh(undefined)
             .unwrap()
-            .then(() => {
-                if (mounted) {
-                    dispatch(sessionEstablished(null));
+            .then((payload) => {
+                if (!mounted) {
+                    return;
+                }
+
+                if (payload?.accessToken) {
+                    dispatch(sessionEstablished(payload));
+                } else {
+                    dispatch(sessionCleared());
                 }
             })
             .catch(() => {

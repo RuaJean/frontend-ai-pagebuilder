@@ -5,8 +5,14 @@ export interface AuthUser {
     name?: string | null;
 }
 
-interface AuthState {
+export interface AuthSessionPayload {
+    user?: AuthUser | null;
+    accessToken?: string | null;
+}
+
+export interface AuthState {
     user: AuthUser | null;
+    accessToken: string | null;
     isAuthenticated: boolean;
     status: "idle" | "loading" | "succeeded" | "failed";
     error: string | null;
@@ -14,6 +20,7 @@ interface AuthState {
 
 const initialState: AuthState = {
     user: null,
+    accessToken: null,
     isAuthenticated: false,
     status: "idle",
     error: null,
@@ -30,17 +37,24 @@ const authSlice = createSlice({
         authRequestFailed(state, action: PayloadAction<string | null | undefined>) {
             state.status = "failed";
             state.error = action.payload ?? "Error de autenticación";
+            state.accessToken = null;
         },
-        sessionEstablished(state, action: PayloadAction<AuthUser | null | undefined>) {
+        sessionEstablished(state, action: PayloadAction<AuthSessionPayload | undefined>) {
             state.status = "succeeded";
             state.isAuthenticated = true;
             state.error = null;
-            if (action.payload) {
-                state.user = action.payload;
+
+            const payload = action.payload;
+            if (payload?.user) {
+                state.user = payload.user;
+            }
+            if (typeof payload?.accessToken === "string") {
+                state.accessToken = payload.accessToken;
             }
         },
         sessionCleared(state) {
             state.user = null;
+            state.accessToken = null;
             state.isAuthenticated = false;
             state.status = "idle";
             state.error = null;

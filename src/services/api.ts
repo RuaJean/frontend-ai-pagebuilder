@@ -5,11 +5,28 @@ import type {
 } from "@reduxjs/toolkit/query";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-import { sessionCleared, sessionEstablished } from "@/features/auth/authSlice";
+import {
+    sessionCleared,
+    sessionEstablished,
+    type AuthState,
+} from "@/features/auth/authSlice";
+import { extractAuthPayload } from "@/features/auth/tokenUtils";
+
+type WithAuthState = {
+    auth: AuthState;
+};
 
 const rawBaseQuery = fetchBaseQuery({
     baseUrl: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5244",
     credentials: "include",
+    prepareHeaders: (headers, { getState }) => {
+        const state = getState() as WithAuthState | undefined;
+        const token = state?.auth?.accessToken;
+        if (token) {
+            headers.set("Authorization", `Bearer ${token}`);
+        }
+        return headers;
+    },
 });
 
 const baseQueryWithReauth: BaseQueryFn<
@@ -35,7 +52,13 @@ const baseQueryWithReauth: BaseQueryFn<
                 return result;
             }
 
-            api.dispatch(sessionEstablished(null));
+            const payload = extractAuthPayload(refreshResult.data);
+            if (!payload.accessToken) {
+                api.dispatch(sessionCleared());
+                return result;
+            }
+
+            api.dispatch(sessionEstablished(payload));
             result = await rawBaseQuery(args, api, extraOptions);
         } else {
             api.dispatch(sessionCleared());

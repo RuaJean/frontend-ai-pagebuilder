@@ -29,7 +29,7 @@ export const websitesApi = api.injectEndpoints({
             },
             providesTags: ["Websites"],
         }),
-        createWebsite: build.mutation<void, CreateWebsiteRequest>({
+        createWebsite: build.mutation<unknown, CreateWebsiteRequest>({
             query: (body) => ({
                 url: "/api/websites",
                 method: "POST",
@@ -37,7 +37,7 @@ export const websitesApi = api.injectEndpoints({
             }),
             invalidatesTags: ["Websites"],
         }),
-        generateWebsite: build.mutation<void, GenerateWebsiteRequest>({
+        generateWebsite: build.mutation<unknown, GenerateWebsiteRequest>({
             query: (body) => ({
                 url: "/api/websites/generate",
                 method: "POST",

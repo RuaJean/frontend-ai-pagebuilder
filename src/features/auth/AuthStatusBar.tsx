@@ -2,10 +2,7 @@
 
 import { useCallback } from "react";
 
-import {
-    sessionCleared,
-    sessionEstablished,
-} from "@/features/auth/authSlice";
+import { sessionCleared, sessionEstablished } from "@/features/auth/authSlice";
 import { useLogoutMutation, useRefreshMutation } from "@/services/authApi";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 
@@ -25,12 +22,16 @@ const AuthStatusBar = () => {
 
     const handleRefresh = useCallback(async () => {
         try {
-            await refreshSession(undefined).unwrap();
-            dispatch(sessionEstablished(user ?? undefined));
+            const payload = await refreshSession(undefined).unwrap();
+            if (payload?.accessToken) {
+                dispatch(sessionEstablished(payload));
+            } else {
+                dispatch(sessionCleared());
+            }
         } catch {
             dispatch(sessionCleared());
         }
-    }, [dispatch, refreshSession, user]);
+    }, [dispatch, refreshSession]);
 
     return (
         <div className="bg-slate-900">

@@ -8,6 +8,8 @@ import {
     authRequestStarted,
     sessionCleared,
     sessionEstablished,
+    type AuthSessionPayload,
+    type AuthUser,
 } from "@/features/auth/authSlice";
 import { useLoginMutation, useRegisterMutation } from "@/services/authApi";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -55,17 +57,37 @@ const LoginForm = () => {
 
         dispatch(authRequestStarted());
 
-        try {
-            if (mode === "login") {
-                await login(payload as LoginRequest).unwrap();
-            } else {
-                await registerMutation(payload as RegisterRequest).unwrap();
+        const fallbackUser: AuthUser = {
+            email: form.email,
+            name: form.name ? form.name : null,
+        };
+
+        const ensureAuthPayload = (response: AuthSessionPayload | undefined) => {
+            const accessToken = response?.accessToken ?? null;
+            if (!accessToken) {
+                throw new Error(
+                    "El backend no retornó el token de acceso requerido para autenticar.",
+                );
             }
+
+            return {
+                accessToken,
+                user: response?.user ?? fallbackUser,
+            };
+        };
+
+        try {
+            const response =
+                mode === "login"
+                    ? await login(payload as LoginRequest).unwrap()
+                    : await registerMutation(payload as RegisterRequest).unwrap();
+
+            const normalizedPayload = ensureAuthPayload(response);
 
             dispatch(
                 sessionEstablished({
-                    email: form.email,
-                    name: mode === "register" ? form.name || null : undefined,
+                    accessToken: normalizedPayload.accessToken,
+                    user: normalizedPayload.user,
                 }),
             );
             resetForm();
