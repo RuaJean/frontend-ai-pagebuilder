@@ -1,0 +1,24 @@
+@import "../src/styles/tailwind.css";
+
+:root {
+  --background: #f7f7f8;
+  --foreground: #0f172a;
+  --accent: #2563eb;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-geist-sans, "Inter"), system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  background: var(--background);
+  color: var(--foreground);
+  min-height: 100vh;
+}
+
+main {
+  width: 100%;
+}
