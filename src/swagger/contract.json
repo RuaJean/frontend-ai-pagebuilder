@@ -1,0 +1,907 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+      "title": "AiPageBuilder.API",
+      "version": "1.0"
+    },
+    "paths": {
+      "/api/auth/register": {
+        "post": {
+          "tags": [
+            "Auth"
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterRequest"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterRequest"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterRequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "OK"
+            }
+          }
+        }
+      },
+      "/api/auth/login": {
+        "post": {
+          "tags": [
+            "Auth"
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginRequest"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginRequest"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginRequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "OK"
+            }
+          }
+        }
+      },
+      "/api/auth/refresh": {
+        "post": {
+          "tags": [
+            "Auth"
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefreshRequest"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefreshRequest"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefreshRequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "OK"
+            }
+          }
+        }
+      },
+      "/api/auth/logout": {
+        "post": {
+          "tags": [
+            "Auth"
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefreshRequest"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefreshRequest"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefreshRequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "OK"
+            }
+          }
+        }
+      },
+      "/api/contact/{websiteId}": {
+        "post": {
+          "tags": [
+            "Contact"
+          ],
+          "parameters": [
+            {
+              "name": "websiteId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactFormRequest"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactFormRequest"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactFormRequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "OK"
+            }
+          }
+        }
+      },
+      "/api/dev/migrate": {
+        "get": {
+          "tags": [
+            "Dev"
+          ],
+          "responses": {
+            "200": {
+              "description": "OK"
+            }
+          }
+        }
+      },
+      "/health": {
+        "get": {
+          "tags": [
+            "Health"
+          ],
+          "responses": {
+            "200": {
+              "description": "OK"
+            }
+          }
+        }
+      },
+      "/api/media/upload": {
+        "post": {
+          "tags": [
+            "Media"
+          ],
+          "requestBody": {
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "required": [
+                    "File",
+                    "WebsiteId"
+                  ],
+                  "type": "object",
+                  "properties": {
+                    "WebsiteId": {
+                      "type": "string",
+                      "format": "uuid"
+                    },
+                    "File": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  }
+                },
+                "encoding": {
+                  "WebsiteId": {
+                    "style": "form"
+                  },
+                  "File": {
+                    "style": "form"
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "OK"
+            }
+          }
+        }
+      },
+      "/media/{websiteId}/{filename}": {
+        "get": {
+          "tags": [
+            "Media"
+          ],
+          "parameters": [
+            {
+              "name": "websiteId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            {
+              "name": "filename",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK"
+            }
+          }
+        }
+      },
+      "/api/media/{websiteId}/{filename}": {
+        "delete": {
+          "tags": [
+            "Media"
+          ],
+          "parameters": [
+            {
+              "name": "websiteId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            {
+              "name": "filename",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK"
+            }
+          }
+        }
+      },
+      "/sitemap.xml": {
+        "get": {
+          "tags": [
+            "Sitemap"
+          ],
+          "responses": {
+            "200": {
+              "description": "OK"
+            }
+          }
+        }
+      },
+      "/api/websites": {
+        "post": {
+          "tags": [
+            "Websites"
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateWebsiteRequest"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateWebsiteRequest"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateWebsiteRequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "OK"
+            }
+          }
+        },
+        "get": {
+          "tags": [
+            "Websites"
+          ],
+          "parameters": [
+            {
+              "name": "search",
+              "in": "query",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "isPublished",
+              "in": "query",
+              "schema": {
+                "type": "boolean"
+              }
+            },
+            {
+              "name": "limit",
+              "in": "query",
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK"
+            }
+          }
+        }
+      },
+      "/api/websites/generate": {
+        "post": {
+          "tags": [
+            "Websites"
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerateWebsiteRequest"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerateWebsiteRequest"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerateWebsiteRequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "OK"
+            }
+          }
+        }
+      },
+      "/api/websites/{id}/apply-prompt": {
+        "post": {
+          "tags": [
+            "Websites"
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplyPromptRequest"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplyPromptRequest"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplyPromptRequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "OK"
+            }
+          }
+        }
+      },
+      "/api/websites/{id}/revert": {
+        "post": {
+          "tags": [
+            "Websites"
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RevertWebsiteRequest"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RevertWebsiteRequest"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RevertWebsiteRequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "OK"
+            }
+          }
+        }
+      },
+      "/api/websites/{slug}": {
+        "get": {
+          "tags": [
+            "Websites"
+          ],
+          "parameters": [
+            {
+              "name": "slug",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK"
+            }
+          }
+        }
+      },
+      "/api/websites/{id}": {
+        "put": {
+          "tags": [
+            "Websites"
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateWebsiteRequest"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateWebsiteRequest"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateWebsiteRequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "OK"
+            }
+          }
+        }
+      },
+      "/api/websites/{id}/publish": {
+        "patch": {
+          "tags": [
+            "Websites"
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishWebsiteRequest"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishWebsiteRequest"
+                }
+              },
+              "application/*+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishWebsiteRequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "OK"
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "ApplyPromptRequest": {
+          "required": [
+            "expectedUpdatedAt",
+            "prompt"
+          ],
+          "type": "object",
+          "properties": {
+            "prompt": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "reasoningAdvanced": {
+              "type": "boolean"
+            },
+            "targetElementId": {
+              "type": "string",
+              "nullable": true
+            },
+            "expectedUpdatedAt": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          "additionalProperties": false
+        },
+        "ContactFormRequest": {
+          "required": [
+            "fields"
+          ],
+          "type": "object",
+          "properties": {
+            "fields": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string",
+                "nullable": true
+              }
+            },
+            "honeypot": {
+              "type": "string",
+              "nullable": true
+            },
+            "recaptchaToken": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "CreateWebsiteRequest": {
+          "required": [
+            "clientEmail",
+            "clientName",
+            "contentJson"
+          ],
+          "type": "object",
+          "properties": {
+            "clientName": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "clientEmail": {
+              "minLength": 1,
+              "type": "string",
+              "format": "email"
+            },
+            "clientWhatsapp": {
+              "type": "string",
+              "nullable": true
+            },
+            "clientSocials": {
+              "type": "string",
+              "nullable": true
+            },
+            "industry": {
+              "type": "string",
+              "nullable": true
+            },
+            "description": {
+              "type": "string",
+              "nullable": true
+            },
+            "targetAudience": {
+              "type": "string",
+              "nullable": true
+            },
+            "brandColors": {
+              "type": "string",
+              "nullable": true
+            },
+            "style": {
+              "type": "string",
+              "nullable": true
+            },
+            "contentJson": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "seoMetadata": {
+              "type": "string",
+              "nullable": true
+            },
+            "slug": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "GenerateWebsiteRequest": {
+          "required": [
+            "clientEmail",
+            "clientName"
+          ],
+          "type": "object",
+          "properties": {
+            "clientName": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "clientEmail": {
+              "minLength": 1,
+              "type": "string",
+              "format": "email"
+            },
+            "clientWhatsapp": {
+              "type": "string",
+              "nullable": true
+            },
+            "clientSocials": {
+              "type": "string",
+              "nullable": true
+            },
+            "industry": {
+              "type": "string",
+              "nullable": true
+            },
+            "description": {
+              "type": "string",
+              "nullable": true
+            },
+            "targetAudience": {
+              "type": "string",
+              "nullable": true
+            },
+            "brandColors": {
+              "type": "string",
+              "nullable": true
+            },
+            "style": {
+              "type": "string",
+              "nullable": true
+            },
+            "tone": {
+              "type": "string",
+              "nullable": true
+            },
+            "additionalContext": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "LoginRequest": {
+          "required": [
+            "email",
+            "password"
+          ],
+          "type": "object",
+          "properties": {
+            "email": {
+              "minLength": 1,
+              "type": "string",
+              "format": "email"
+            },
+            "password": {
+              "minLength": 6,
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "PublishWebsiteRequest": {
+          "required": [
+            "isPublished"
+          ],
+          "type": "object",
+          "properties": {
+            "isPublished": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "RefreshRequest": {
+          "type": "object",
+          "properties": {
+            "refreshToken": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "RegisterRequest": {
+          "required": [
+            "email",
+            "password"
+          ],
+          "type": "object",
+          "properties": {
+            "email": {
+              "minLength": 1,
+              "type": "string",
+              "format": "email"
+            },
+            "password": {
+              "minLength": 8,
+              "type": "string"
+            },
+            "name": {
+              "maxLength": 256,
+              "type": "string",
+              "nullable": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "RevertWebsiteRequest": {
+          "required": [
+            "expectedUpdatedAt"
+          ],
+          "type": "object",
+          "properties": {
+            "versionId": {
+              "type": "string",
+              "format": "uuid",
+              "nullable": true
+            },
+            "expectedUpdatedAt": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          "additionalProperties": false
+        },
+        "UpdateWebsiteRequest": {
+          "type": "object",
+          "properties": {
+            "clientName": {
+              "type": "string",
+              "nullable": true
+            },
+            "clientEmail": {
+              "type": "string",
+              "nullable": true
+            },
+            "slug": {
+              "type": "string",
+              "nullable": true
+            },
+            "clientWhatsapp": {
+              "type": "string",
+              "nullable": true
+            },
+            "clientSocials": {
+              "type": "string",
+              "nullable": true
+            },
+            "industry": {
+              "type": "string",
+              "nullable": true
+            },
+            "description": {
+              "type": "string",
+              "nullable": true
+            },
+            "targetAudience": {
+              "type": "string",
+              "nullable": true
+            },
+            "brandColors": {
+              "type": "string",
+              "nullable": true
+            },
+            "style": {
+              "type": "string",
+              "nullable": true
+            },
+            "contentJson": {
+              "type": "string",
+              "nullable": true
+            },
+            "seoMetadata": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  }
