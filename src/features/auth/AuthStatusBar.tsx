@@ -34,7 +34,8 @@ const AuthStatusBar = () => {
     }, [dispatch, refreshSession]);
 
     return (
-        <div className="bg-slate-900">
+        <>
+             {/* <div className="bg-slate-900">
             <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-3 text-sm text-white">
                 <span>
                     {isAuthenticated
@@ -65,7 +66,9 @@ const AuthStatusBar = () => {
                     )}
                 </div>
             </div>
-        </div>
+        </div> */}
+        </>
+   
     );
 };
 

@@ -28,11 +28,11 @@ export const authApi = api.injectEndpoints({
             transformResponse: extractAuthPayload,
             invalidatesTags: ["Auth"],
         }),
-        refresh: build.mutation<AuthSessionPayload, RefreshRequest | undefined>({
+        refresh: build.mutation<AuthSessionPayload, RefreshRequest | void>({
             query: (body) => ({
                 url: "/api/auth/refresh",
                 method: "POST",
-                body,
+                body: body ?? {},
             }),
             transformResponse: extractAuthPayload,
             invalidatesTags: ["Auth"],

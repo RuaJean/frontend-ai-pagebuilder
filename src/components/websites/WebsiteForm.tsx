@@ -27,7 +27,7 @@ const initialState: FormState = {
 
 type FieldKey = keyof GenerateWebsiteRequest | "additionalNotes";
 
-const serializeClientSocials = (rawValue?: string | null): string | null => {
+const serializeJsonArrayField = (rawValue?: string | null): string | null => {
     if (!rawValue) {
         return null;
     }
@@ -87,11 +87,11 @@ const WebsiteForm = ({ isSubmitting = false, backendErrors, onSubmit }: WebsiteF
             clientName: form.clientName,
             clientEmail: form.clientEmail,
             clientWhatsapp: form.clientWhatsapp || null,
-            clientSocials: serializeClientSocials(form.clientSocials),
+            clientSocials: serializeJsonArrayField(form.clientSocials),
             industry: form.industry || null,
             description: form.description || null,
             targetAudience: form.targetAudience || null,
-            brandColors: form.brandColors || null,
+            brandColors: serializeJsonArrayField(form.brandColors),
             style: form.style || null,
             tone: form.tone || null,
             additionalContext: form.additionalContext || null,

@@ -7,11 +7,15 @@ import type { AuthSessionPayload } from "@/features/auth/authSlice";
 import { useAppSelector } from "@/store/hooks";
 
 const AuthHydrator = () => {
-    const { isAuthenticated, accessToken, user } = useAppSelector(
+    const { isAuthenticated, accessToken, user, initialized } = useAppSelector(
         (state) => state.auth,
     );
 
     useEffect(() => {
+        if (!initialized) {
+            return;
+        }
+
         if (isAuthenticated && accessToken) {
             const payload: AuthSessionPayload = {
                 accessToken,
@@ -21,7 +25,7 @@ const AuthHydrator = () => {
         } else {
             authStorage.clear();
         }
-    }, [accessToken, isAuthenticated, user]);
+    }, [accessToken, initialized, isAuthenticated, user]);
 
     return null;
 };

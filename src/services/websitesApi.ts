@@ -1,6 +1,10 @@
 import { api } from "./api";
 import type { components, paths } from "@/types/openapi";
-import type { WebsiteListItem, WebsitesResponse } from "@/types/websites";
+import type {
+    WebsiteDetail,
+    WebsiteListItem,
+    WebsitesResponse,
+} from "@/types/websites";
 
 type ListWebsitesQuery = paths["/api/websites"]["get"]["parameters"]["query"];
 type CreateWebsiteRequest = components["schemas"]["CreateWebsiteRequest"];
@@ -67,7 +71,7 @@ export const websitesApi = api.injectEndpoints({
             }),
             invalidatesTags: ["Websites"],
         }),
-        getWebsiteBySlug: build.query<unknown, WebsiteSlugParam["slug"]>({
+        getWebsiteBySlug: build.query<WebsiteDetail, WebsiteSlugParam["slug"]>({
             query: (slug) => ({
                 url: `/api/websites/${slug}`,
                 method: "GET",

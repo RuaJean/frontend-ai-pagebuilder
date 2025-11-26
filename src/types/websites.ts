@@ -19,3 +19,9 @@ export interface WebsiteListItem extends WebsiteBase {
 
 export type WebsitesResponse = WebsiteListItem[];
 
+export interface WebsiteDetail extends WebsiteListItem {
+    contentJson: string;
+    isPublished: boolean;
+    seoMetadata?: string | null;
+}
+

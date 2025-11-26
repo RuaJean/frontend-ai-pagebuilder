@@ -12,12 +12,19 @@ import {
 } from "@/features/auth/authSlice";
 import { extractAuthPayload } from "@/features/auth/tokenUtils";
 
+const DEFAULT_API_BASE_URL = "http://localhost:5244";
+const apiBaseUrl =
+    (process.env.NEXT_PUBLIC_API_URL &&
+        process.env.NEXT_PUBLIC_API_URL.trim().length > 0
+        ? process.env.NEXT_PUBLIC_API_URL
+        : undefined) ?? DEFAULT_API_BASE_URL;
+
 type WithAuthState = {
     auth: AuthState;
 };
 
 const rawBaseQuery = fetchBaseQuery({
-    baseUrl: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5244",
+    baseUrl: apiBaseUrl,
     credentials: "include",
     prepareHeaders: (headers, { getState }) => {
         const state = getState() as WithAuthState | undefined;
@@ -42,7 +49,7 @@ const baseQueryWithReauth: BaseQueryFn<
 
         if (!isRefreshCall) {
             const refreshResult = await rawBaseQuery(
-                { url: "/api/auth/refresh", method: "POST" },
+                { url: "/api/auth/refresh", method: "POST", body: {} },
                 api,
                 extraOptions,
             );
