@@ -206,8 +206,7 @@ const WebsiteForm = ({ isSubmitting = false, backendErrors, onSubmit }: WebsiteF
         () =>
             form.clientName.trim().length > 0 &&
             form.clientEmail.trim().length > 0 &&
-            trimmedReferenceWebsiteUrl.length > 0 &&
-            !referenceWebsiteUrlError,
+            (!trimmedReferenceWebsiteUrl || !referenceWebsiteUrlError),
         [form.clientEmail, form.clientName, referenceWebsiteUrlError, trimmedReferenceWebsiteUrl],
     );
 
@@ -226,7 +225,8 @@ const WebsiteForm = ({ isSubmitting = false, backendErrors, onSubmit }: WebsiteF
             return;
         }
 
-        const normalizedReferenceWebsiteUrl = trimmedReferenceWebsiteUrl;
+        const normalizedReferenceWebsiteUrl =
+            trimmedReferenceWebsiteUrl.length > 0 ? trimmedReferenceWebsiteUrl : null;
 
         const payload: GenerateWebsiteRequest = {
             clientName: form.clientName,
@@ -299,7 +299,6 @@ const WebsiteForm = ({ isSubmitting = false, backendErrors, onSubmit }: WebsiteF
                     <InputField
                         label="Sitio web de referencia"
                         icon={<Globe className="h-4 w-4" />}
-                        required
                         type="url"
                         value={form.referenceWebsiteUrl}
                         onChange={handleChange("referenceWebsiteUrl")}
