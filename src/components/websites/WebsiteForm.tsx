@@ -1,6 +1,23 @@
 'use client';
 
 import { useMemo, useState } from "react";
+import { 
+    User, 
+    Mail, 
+    Phone, 
+    Share2, 
+    Building2, 
+    Users, 
+    FileText, 
+    Palette, 
+    Wand2, 
+    MessageSquare, 
+    Info, 
+    StickyNote,
+    Sparkles,
+    RotateCcw,
+    AlertCircle
+} from "lucide-react";
 
 import type { components } from "@/types/openapi";
 
@@ -60,6 +77,93 @@ type WebsiteFormProps = {
     onSubmit: (data: GenerateWebsiteRequest) => Promise<void>;
 };
 
+type InputFieldProps = {
+    label: string;
+    icon: React.ReactNode;
+    required?: boolean;
+    type?: string;
+    value: string;
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    placeholder?: string;
+    delay?: number;
+};
+
+const InputField = ({ 
+    label, 
+    icon, 
+    required, 
+    type = "text", 
+    value, 
+    onChange, 
+    placeholder,
+    delay = 0
+}: InputFieldProps) => (
+    <div 
+        className="animate-fade-in-up opacity-0 group"
+        style={{ animationDelay: `${delay}ms`, animationFillMode: 'forwards' }}
+    >
+        <label className="block">
+            <div className="mb-2 flex items-center gap-2 text-sm font-medium text-[var(--text-secondary)]">
+                <span className="text-[var(--accent-primary)]">{icon}</span>
+                <span>{label}</span>
+                {required && <span className="text-[var(--accent-alt)]">*</span>}
+            </div>
+            <div className="relative">
+                <input
+                    type={type}
+                    required={required}
+                    value={value}
+                    onChange={onChange}
+                    placeholder={placeholder}
+                    className="input-modern pr-4 pl-4"
+                />
+                <div className="pointer-events-none absolute inset-0 rounded-xl opacity-0 transition-opacity group-focus-within:opacity-100"
+                     style={{ boxShadow: '0 0 20px var(--accent-glow)' }} 
+                />
+            </div>
+        </label>
+    </div>
+);
+
+type TextareaFieldProps = {
+    label: string;
+    icon: React.ReactNode;
+    value: string;
+    onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+    placeholder?: string;
+    rows?: number;
+    delay?: number;
+};
+
+const TextareaField = ({ 
+    label, 
+    icon, 
+    value, 
+    onChange, 
+    placeholder, 
+    rows = 3,
+    delay = 0
+}: TextareaFieldProps) => (
+    <div 
+        className="animate-fade-in-up opacity-0 group"
+        style={{ animationDelay: `${delay}ms`, animationFillMode: 'forwards' }}
+    >
+        <label className="block">
+            <div className="mb-2 flex items-center gap-2 text-sm font-medium text-[var(--text-secondary)]">
+                <span className="text-[var(--accent-primary)]">{icon}</span>
+                <span>{label}</span>
+            </div>
+            <textarea
+                rows={rows}
+                value={value}
+                onChange={onChange}
+                placeholder={placeholder}
+                className="input-modern resize-none"
+            />
+        </label>
+    </div>
+);
+
 const WebsiteForm = ({ isSubmitting = false, backendErrors, onSubmit }: WebsiteFormProps) => {
     const [form, setForm] = useState<FormState>(initialState);
 
@@ -101,168 +205,230 @@ const WebsiteForm = ({ isSubmitting = false, backendErrors, onSubmit }: WebsiteF
     };
 
     return (
-        <form className="space-y-5" onSubmit={handleSubmit}>
-            <div className="grid gap-4 md:grid-cols-2">
-                <label className="text-sm font-medium text-slate-700">
-                    Nombre del cliente *
-                    <input
-                        type="text"
+        <form className="space-y-8" onSubmit={handleSubmit}>
+            {/* Section: Client Info */}
+            <div className="space-y-6">
+                <div className="flex items-center gap-3">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-tertiary)]">
+                        <User className="h-4 w-4 text-[var(--bg-primary)]" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-[var(--text-primary)]">
+                        Información del Cliente
+                    </h3>
+                </div>
+                
+                <div className="grid gap-5 md:grid-cols-2">
+                    <InputField
+                        label="Nombre del cliente"
+                        icon={<User className="h-4 w-4" />}
                         required
                         value={form.clientName}
                         onChange={handleChange("clientName")}
-                        className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
+                        placeholder="Ej: Acme Corporation"
+                        delay={0}
                     />
-                </label>
-
-                <label className="text-sm font-medium text-slate-700">
-                    Email del cliente *
-                    <input
-                        type="email"
+                    <InputField
+                        label="Email del cliente"
+                        icon={<Mail className="h-4 w-4" />}
                         required
+                        type="email"
                         value={form.clientEmail}
                         onChange={handleChange("clientEmail")}
-                        className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
+                        placeholder="cliente@empresa.com"
+                        delay={50}
                     />
-                </label>
-            </div>
-
-            <div className="grid gap-4 md:grid-cols-2">
-                <label className="text-sm font-medium text-slate-700">
-                    WhatsApp
-                    <input
+                    <InputField
+                        label="WhatsApp"
+                        icon={<Phone className="h-4 w-4" />}
                         type="tel"
                         value={form.clientWhatsapp ?? ""}
                         onChange={handleChange("clientWhatsapp")}
-                        className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
+                        placeholder="+52 55 1234 5678"
+                        delay={100}
                     />
-                </label>
-
-                <label className="text-sm font-medium text-slate-700">
-                    Redes sociales
-                    <input
-                        type="text"
+                    <InputField
+                        label="Redes sociales"
+                        icon={<Share2 className="h-4 w-4" />}
                         value={form.clientSocials ?? ""}
                         onChange={handleChange("clientSocials")}
-                        className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
+                        placeholder="@instagram, linkedin.com/company/..."
+                        delay={150}
                     />
-                </label>
+                </div>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
-                <label className="text-sm font-medium text-slate-700">
-                    Industria
-                    <input
-                        type="text"
+            {/* Divider */}
+            <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-[var(--border-subtle)]" />
+                </div>
+                <div className="relative flex justify-center">
+                    <span className="bg-[var(--bg-primary)] px-4 text-xs uppercase tracking-widest text-[var(--text-muted)]">
+                        Sobre el proyecto
+                    </span>
+                </div>
+            </div>
+
+            {/* Section: Project Info */}
+            <div className="space-y-6">
+                <div className="flex items-center gap-3">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--accent-tertiary)] to-[var(--accent-alt)]">
+                        <Building2 className="h-4 w-4 text-[var(--text-primary)]" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-[var(--text-primary)]">
+                        Detalles del Negocio
+                    </h3>
+                </div>
+
+                <div className="grid gap-5 md:grid-cols-2">
+                    <InputField
+                        label="Industria"
+                        icon={<Building2 className="h-4 w-4" />}
                         value={form.industry ?? ""}
                         onChange={handleChange("industry")}
-                        className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
+                        placeholder="Tecnología, Restaurantes, Retail..."
+                        delay={200}
                     />
-                </label>
-
-                <label className="text-sm font-medium text-slate-700">
-                    Público objetivo
-                    <input
-                        type="text"
+                    <InputField
+                        label="Público objetivo"
+                        icon={<Users className="h-4 w-4" />}
                         value={form.targetAudience ?? ""}
                         onChange={handleChange("targetAudience")}
-                        className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
+                        placeholder="Millennials, empresarios, familias..."
+                        delay={250}
                     />
-                </label>
-            </div>
+                </div>
 
-            <label className="text-sm font-medium text-slate-700">
-                Descripción del proyecto
-                <textarea
-                    rows={3}
+                <TextareaField
+                    label="Descripción del proyecto"
+                    icon={<FileText className="h-4 w-4" />}
                     value={form.description ?? ""}
                     onChange={handleChange("description")}
-                    className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
+                    placeholder="Cuéntanos sobre el negocio, sus productos o servicios, y qué desea comunicar..."
+                    rows={4}
+                    delay={300}
                 />
-            </label>
-
-            <div className="grid gap-4 md:grid-cols-2">
-                <label className="text-sm font-medium text-slate-700">
-                    Colores de marca
-                    <input
-                        type="text"
-                        value={form.brandColors ?? ""}
-                        onChange={handleChange("brandColors")}
-                        placeholder="#000000, #FFFFFF"
-                        className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
-                    />
-                </label>
-
-                <label className="text-sm font-medium text-slate-700">
-                    Estilo visual
-                    <input
-                        type="text"
-                        value={form.style ?? ""}
-                        onChange={handleChange("style")}
-                        placeholder="Minimalista, corporativo..."
-                        className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
-                    />
-                </label>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
-                <label className="text-sm font-medium text-slate-700">
-                    Tono de voz
-                    <input
-                        type="text"
+            {/* Divider */}
+            <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-[var(--border-subtle)]" />
+                </div>
+                <div className="relative flex justify-center">
+                    <span className="bg-[var(--bg-primary)] px-4 text-xs uppercase tracking-widest text-[var(--text-muted)]">
+                        Estilo visual
+                    </span>
+                </div>
+            </div>
+
+            {/* Section: Visual Style */}
+            <div className="space-y-6">
+                <div className="flex items-center gap-3">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--accent-alt)] to-[var(--accent-primary)]">
+                        <Palette className="h-4 w-4 text-[var(--text-primary)]" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-[var(--text-primary)]">
+                        Identidad Visual
+                    </h3>
+                </div>
+
+                <div className="grid gap-5 md:grid-cols-2">
+                    <InputField
+                        label="Colores de marca"
+                        icon={<Palette className="h-4 w-4" />}
+                        value={form.brandColors ?? ""}
+                        onChange={handleChange("brandColors")}
+                        placeholder="#000000, #FFFFFF, azul marino..."
+                        delay={350}
+                    />
+                    <InputField
+                        label="Estilo visual"
+                        icon={<Wand2 className="h-4 w-4" />}
+                        value={form.style ?? ""}
+                        onChange={handleChange("style")}
+                        placeholder="Minimalista, corporativo, moderno..."
+                        delay={400}
+                    />
+                    <InputField
+                        label="Tono de voz"
+                        icon={<MessageSquare className="h-4 w-4" />}
                         value={form.tone ?? ""}
                         onChange={handleChange("tone")}
-                        placeholder="Profesional, cercano, disruptivo..."
-                        className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
+                        placeholder="Profesional, cercano, divertido..."
+                        delay={450}
                     />
-                </label>
-
-                <label className="text-sm font-medium text-slate-700">
-                    Contexto adicional
-                    <input
-                        type="text"
+                    <InputField
+                        label="Contexto adicional"
+                        icon={<Info className="h-4 w-4" />}
                         value={form.additionalContext ?? ""}
                         onChange={handleChange("additionalContext")}
                         placeholder="Objetivos específicos, restricciones..."
-                        className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
+                        delay={500}
                     />
-                </label>
+                </div>
             </div>
 
-            <label className="text-sm font-medium text-slate-700">
-                Notas internas
-                <textarea
-                    rows={3}
-                    value={form.additionalNotes ?? ""}
-                    onChange={handleChange("additionalNotes")}
-                    placeholder="Solo visible para tu equipo (no se envía al backend)"
-                    className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
-                />
-            </label>
+            {/* Section: Internal Notes */}
+            <div 
+                className="animate-fade-in-up opacity-0"
+                style={{ animationDelay: '550ms', animationFillMode: 'forwards' }}
+            >
+                <div className="card-glass border-dashed">
+                    <div className="mb-4 flex items-center gap-2 text-sm text-[var(--text-muted)]">
+                        <StickyNote className="h-4 w-4" />
+                        <span>Notas internas (no se envían al backend)</span>
+                    </div>
+                    <textarea
+                        rows={2}
+                        value={form.additionalNotes ?? ""}
+                        onChange={handleChange("additionalNotes")}
+                        placeholder="Notas para tu equipo..."
+                        className="input-modern resize-none"
+                    />
+                </div>
+            </div>
 
+            {/* Error message */}
             {backendErrors && (
-                <div className="rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">
-                    {backendErrors}
+                <div 
+                    className="animate-fade-in-up flex items-start gap-3 rounded-xl border border-[var(--error)]/30 bg-[var(--error)]/10 p-4"
+                >
+                    <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--error)]" />
+                    <p className="text-sm text-[var(--error)]">{backendErrors}</p>
                 </div>
             )}
 
-            <div className="flex flex-wrap items-center gap-3">
+            {/* Actions */}
+            <div 
+                className="animate-fade-in-up flex flex-wrap items-center gap-4 opacity-0 pt-2"
+                style={{ animationDelay: '600ms', animationFillMode: 'forwards' }}
+            >
                 <button
                     type="submit"
                     disabled={!canSubmit || isSubmitting}
-                    className="rounded-lg bg-slate-900 px-6 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-50"
+                    className="glow-button btn-primary flex items-center gap-2"
                 >
-                    {isSubmitting ? "Generando..." : "Generar sitio con IA"}
+                    {isSubmitting ? (
+                        <>
+                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--bg-primary)] border-t-transparent" />
+                            <span>Generando con IA...</span>
+                        </>
+                    ) : (
+                        <>
+                            <Sparkles className="h-4 w-4" />
+                            <span>Generar sitio con IA</span>
+                        </>
+                    )}
                 </button>
                 <button
                     type="button"
                     onClick={() => setForm(initialState)}
-                    className="rounded-lg border border-slate-300 px-6 py-2 text-sm font-semibold text-slate-600 hover:border-slate-900"
+                    className="btn-secondary flex items-center gap-2"
                 >
-                    Limpiar
+                    <RotateCcw className="h-4 w-4" />
+                    <span>Limpiar</span>
                 </button>
-                <p className="text-xs text-slate-500">
-                    Se usará el endpoint oficial `POST /api/websites/generate`.
-                </p>
             </div>
         </form>
     );

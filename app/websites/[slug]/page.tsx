@@ -2,7 +2,7 @@
 
 import { FormEvent, useMemo, useState } from "react";
 import { notFound, useParams, useSearchParams } from "next/navigation";
-import { Rocket } from "lucide-react";
+import { Rocket, Sparkles, Send, X, CheckCircle, AlertCircle } from "lucide-react";
 
 import JsonRenderer from "@/components/editor/JsonRenderer";
 import ProtectedRoute from "@/components/layout/ProtectedRoute";
@@ -63,8 +63,13 @@ const WebsitePageInner = ({
 
     if (!data || isLoading || isFetching) {
         return (
-            <div className="rounded-xl border border-slate-200 bg-white p-6 text-center text-sm text-slate-600">
-                Cargando contenido del sitio...
+            <div className="flex min-h-screen items-center justify-center bg-[var(--bg-primary)]">
+                <div className="text-center">
+                    <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-[var(--accent-primary)] border-t-transparent" />
+                    <p className="text-sm text-[var(--text-muted)]">
+                        Cargando contenido del sitio...
+                    </p>
+                </div>
             </div>
         );
     }
@@ -76,7 +81,7 @@ const WebsitePageInner = ({
     const codeSource = !content && isLikelyCustomCode(contentJson) ? contentJson : null;
 
     return (
-        <div className="relative min-h-screen bg-black">
+        <div className="relative min-h-screen bg-[var(--bg-primary)]">
             {editMode && data && (
                 <EditPromptBar website={data} onRefresh={refetch} />
             )}
@@ -108,7 +113,7 @@ export default function WebsiteDetailPage() {
 }
  
 const JsonContentCanvas = ({ content }: { content: PageContent }) => (
-    <main className="min-h-screen bg-white text-slate-900">
+    <main className="min-h-screen bg-[var(--text-primary)] text-[var(--bg-primary)]">
         <div className="mx-auto max-w-6xl px-6 py-16">
             <JsonRenderer content={content} />
         </div>
@@ -116,9 +121,17 @@ const JsonContentCanvas = ({ content }: { content: PageContent }) => (
 );
 
 const EmptyContentState = ({ editMode }: { editMode: boolean }) => (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-slate-950 px-6 text-center text-sm text-slate-200">
-        <p className="text-base font-semibold">El contenido aún no está disponible.</p>
-        <p className="mt-2 max-w-xl text-xs text-slate-400">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--bg-primary)] px-6 text-center">
+        <div className="relative">
+            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-[var(--accent-primary)]/20 to-[var(--accent-alt)]/20">
+                <Sparkles className="h-10 w-10 text-[var(--accent-primary)]" />
+            </div>
+            <div className="pointer-events-none absolute -inset-4 rounded-3xl bg-gradient-to-br from-[var(--accent-primary)]/20 to-transparent blur-2xl" />
+        </div>
+        <h2 className="text-xl font-semibold text-[var(--text-primary)]">
+            El contenido aún no está disponible
+        </h2>
+        <p className="mt-3 max-w-md text-sm text-[var(--text-muted)]">
             {editMode
                 ? "Verifica que la generación haya devuelto un TSX válido o JSON estructurado."
                 : "Vuelve más tarde mientras generamos esta página con IA."}
@@ -247,26 +260,40 @@ const EditPromptBar = ({
 
     return (
         <>
+            {/* Publish Confirmation Modal */}
             {showPublishConfirm && (
                 <div className="fixed inset-0 z-[60] flex items-center justify-center px-4">
                     <button
                         type="button"
                         aria-label="Cerrar confirmación de publicación"
-                        className="absolute inset-0 bg-slate-950/70 backdrop-blur-sm"
+                        className="absolute inset-0 bg-[var(--bg-primary)]/80 backdrop-blur-sm"
                         onClick={() => setShowPublishConfirm(false)}
                     />
-                    <div className="relative z-[61] w-full max-w-sm rounded-2xl border border-white/15 bg-slate-950/95 p-5 text-white shadow-2xl">
-                        <p className="text-base font-semibold">
-                            ¿Deseas publicar este sitio ahora?
+                    <div className="card-glass relative z-[61] w-full max-w-sm rounded-2xl p-6">
+                        <button
+                            type="button"
+                            onClick={() => setShowPublishConfirm(false)}
+                            className="absolute right-4 top-4 text-[var(--text-muted)] transition-colors hover:text-[var(--text-primary)]"
+                        >
+                            <X className="h-5 w-5" />
+                        </button>
+                        
+                        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)]">
+                            <Rocket className="h-6 w-6 text-[var(--bg-primary)]" />
+                        </div>
+                        
+                        <h3 className="text-lg font-semibold text-[var(--text-primary)]">
+                            ¿Publicar este sitio?
+                        </h3>
+                        <p className="mt-2 text-sm text-[var(--text-muted)]">
+                            El contenido quedará visible para tus clientes inmediatamente.
                         </p>
-                        <p className="mt-1 text-sm text-white/70">
-                            El contenido quedará visible para tus clientes.
-                        </p>
-                        <div className="mt-6 flex justify-end gap-2 text-sm">
+                        
+                        <div className="mt-6 flex gap-3">
                             <button
                                 type="button"
                                 onClick={() => setShowPublishConfirm(false)}
-                                className="rounded-lg border border-white/30 px-4 py-2 text-white transition hover:border-white/60"
+                                className="btn-secondary flex-1"
                             >
                                 Cancelar
                             </button>
@@ -274,66 +301,97 @@ const EditPromptBar = ({
                                 type="button"
                                 onClick={handlePublish}
                                 disabled={isPublishing}
-                                className="rounded-lg bg-emerald-500 px-4 py-2 font-semibold text-emerald-950 transition hover:bg-emerald-400 disabled:opacity-40"
+                                className="btn-primary flex flex-1 items-center justify-center gap-2"
                             >
+                                {isPublishing ? (
+                                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--bg-primary)] border-t-transparent" />
+                                ) : (
+                                    <Rocket className="h-4 w-4" />
+                                )}
                                 {isPublishing ? "Publicando..." : "Publicar"}
                             </button>
                         </div>
                     </div>
                 </div>
             )}
+
+            {/* Edit Bar */}
             <form
                 onSubmit={handleSubmit}
-                className="pointer-events-auto fixed bottom-6 left-6 z-50 flex w-[min(90vw,22rem)] flex-col gap-2 rounded-2xl border border-white/20 bg-slate-900/85 p-3 text-white shadow-2xl backdrop-blur"
+                className="glass-surface-strong pointer-events-auto fixed bottom-6 left-6 z-50 flex w-[min(90vw,24rem)] flex-col gap-3 rounded-2xl p-4 shadow-2xl"
             >
-            <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.3em] text-white/60">
-                <span>Editar página</span>
-                <span>{website.isPublished ? "Publicado" : "Borrador"}</span>
-            </div>
-            <textarea
-                className="h-20 w-full resize-none rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/40 focus:border-emerald-400 focus:outline-none"
-                placeholder="Describe el cambio visual o de contenido que necesitas..."
-                value={prompt}
-                onChange={(event) => setPrompt(event.target.value)}
-                disabled={isLoading}
-            />
-            <div className="flex items-center gap-3">
-                <button
-                    type="submit"
-                    className="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-950 transition hover:bg-emerald-400 disabled:opacity-40"
-                    disabled={isLoading || !prompt.trim()}
-                >
-                    {isLoading ? "Aplicando..." : "Aplicar prompt"}
-                </button>
-                <div className="ml-auto flex items-center gap-2 text-[11px] text-white/60">
-                    <p className="text-[11px] text-white/60">
-                        {website.clientName ?? website.slug ?? "Proyecto sin nombre"}
-                    </p>
-                    <button
-                        type="button"
-                        onClick={openPublishConfirm}
-                        disabled={isPublishing}
-                        title={
-                            website.isPublished
-                                ? "El sitio ya está publicado"
-                                : "Publicar sitio"
-                        }
-                        className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:border-emerald-300 hover:text-emerald-300 disabled:opacity-40"
-                    >
-                        <Rocket className="h-4 w-4" />
-                        <span className="sr-only">Publicar sitio</span>
-                    </button>
+                {/* Header */}
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <Sparkles className="h-4 w-4 text-[var(--accent-primary)]" />
+                        <span className="text-xs font-medium uppercase tracking-wide text-[var(--text-muted)]">
+                            Editar página
+                        </span>
+                    </div>
+                    <span className={`badge text-[10px] ${website.isPublished ? "badge-success" : "badge-warning"}`}>
+                        {website.isPublished ? "Publicado" : "Borrador"}
+                    </span>
                 </div>
-            </div>
-            {feedback && (
-                <p
-                    className={`text-xs ${
-                        feedback.type === "success" ? "text-emerald-300" : "text-rose-300"
-                    }`}
-                >
-                    {feedback.message}
-                </p>
-            )}
+
+                {/* Textarea */}
+                <textarea
+                    className="input-modern h-24 resize-none text-sm"
+                    placeholder="Describe el cambio visual o de contenido que necesitas..."
+                    value={prompt}
+                    onChange={(event) => setPrompt(event.target.value)}
+                    disabled={isLoading}
+                />
+
+                {/* Actions */}
+                <div className="flex items-center gap-3">
+                    <button
+                        type="submit"
+                        className="glow-button btn-primary flex items-center gap-2 text-sm"
+                        disabled={isLoading || !prompt.trim()}
+                    >
+                        {isLoading ? (
+                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--bg-primary)] border-t-transparent" />
+                        ) : (
+                            <Send className="h-4 w-4" />
+                        )}
+                        {isLoading ? "Aplicando..." : "Aplicar"}
+                    </button>
+                    
+                    <div className="ml-auto flex items-center gap-2">
+                        <span className="max-w-[100px] truncate text-xs text-[var(--text-muted)]">
+                            {website.clientName ?? website.slug ?? "Proyecto"}
+                        </span>
+                        <button
+                            type="button"
+                            onClick={openPublishConfirm}
+                            disabled={isPublishing || website.isPublished}
+                            title={
+                                website.isPublished
+                                    ? "El sitio ya está publicado"
+                                    : "Publicar sitio"
+                            }
+                            className="flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--border-strong)] bg-[var(--surface-glass)] text-[var(--text-muted)] transition-all hover:border-[var(--accent-primary)] hover:text-[var(--accent-primary)] disabled:opacity-40"
+                        >
+                            <Rocket className="h-4 w-4" />
+                        </button>
+                    </div>
+                </div>
+
+                {/* Feedback */}
+                {feedback && (
+                    <div className={`flex items-center gap-2 rounded-lg p-2 text-xs ${
+                        feedback.type === "success" 
+                            ? "bg-[var(--success)]/10 text-[var(--success)]" 
+                            : "bg-[var(--error)]/10 text-[var(--error)]"
+                    }`}>
+                        {feedback.type === "success" ? (
+                            <CheckCircle className="h-3.5 w-3.5 flex-shrink-0" />
+                        ) : (
+                            <AlertCircle className="h-3.5 w-3.5 flex-shrink-0" />
+                        )}
+                        <span>{feedback.message}</span>
+                    </div>
+                )}
             </form>
         </>
     );

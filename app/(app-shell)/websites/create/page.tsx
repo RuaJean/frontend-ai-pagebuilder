@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Sparkles, Wand2, ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
 import ProtectedRoute from "@/components/layout/ProtectedRoute";
 import WebsiteForm from "@/components/websites/WebsiteForm";
@@ -158,29 +160,67 @@ export default function CreateWebsitePage() {
 
     return (
         <ProtectedRoute>
-            <section className="space-y-6">
-                <header className="space-y-2">
-                    <p className="text-xs uppercase tracking-wide text-slate-500">
-                        Generación asistida por IA
-                    </p>
-                    <h1 className="text-3xl font-semibold text-slate-900">
-                        Crear nuevo sitio
-                    </h1>
-                    <p className="text-sm text-slate-600">
-                        Completa la información del cliente. Primero se generará el contenido
-                        vía IA y después se registrará un borrador editable.
+            <section className="relative space-y-8">
+                {/* Back link */}
+                <Link 
+                    href="/websites"
+                    className="inline-flex items-center gap-2 text-sm text-[var(--text-muted)] transition-colors hover:text-[var(--accent-primary)]"
+                >
+                    <ArrowLeft className="h-4 w-4" />
+                    Volver a mis sitios
+                </Link>
+
+                {/* Header */}
+                <header className="relative">
+                    <div className="mb-6 flex items-center gap-4">
+                        <div className="relative">
+                            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-alt)]">
+                                <Wand2 className="h-7 w-7 text-[var(--bg-primary)]" />
+                            </div>
+                            <div className="absolute -inset-2 rounded-3xl bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-alt)] opacity-30 blur-xl" />
+                        </div>
+                        <div>
+                            <div className="mb-1 flex items-center gap-2">
+                                <span className="badge badge-success">
+                                    <Sparkles className="mr-1 h-3 w-3" />
+                                    IA Generativa
+                                </span>
+                            </div>
+                            <h1 className="text-3xl font-bold text-[var(--text-primary)]">
+                                Crear nuevo sitio
+                            </h1>
+                        </div>
+                    </div>
+                    <p className="max-w-2xl text-[var(--text-secondary)]">
+                        Completa la información del cliente y nuestro sistema de inteligencia artificial 
+                        generará un sitio web profesional. Después podrás editarlo y publicarlo.
                     </p>
                 </header>
 
-                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                    <WebsiteForm
-                        onSubmit={handleSubmit}
-                        isSubmitting={isSubmitting}
-                        backendErrors={backendError}
-                    />
+                {/* Form Container */}
+                <div className="relative">
+                    {/* Background glow effect */}
+                    <div className="pointer-events-none absolute -inset-4 rounded-3xl bg-gradient-to-br from-[var(--accent-primary)]/5 via-transparent to-[var(--accent-alt)]/5 blur-2xl" />
+                    
+                    <div className="card-glass relative overflow-hidden rounded-2xl p-8">
+                        {/* Decorative elements */}
+                        <div className="pointer-events-none absolute right-0 top-0 h-40 w-40 translate-x-12 -translate-y-12 rounded-full bg-gradient-to-br from-[var(--accent-primary)]/20 to-transparent blur-2xl" />
+                        <div className="pointer-events-none absolute bottom-0 left-0 h-32 w-32 -translate-x-8 translate-y-8 rounded-full bg-gradient-to-tr from-[var(--accent-alt)]/20 to-transparent blur-2xl" />
+                        
+                        <WebsiteForm
+                            onSubmit={handleSubmit}
+                            isSubmitting={isSubmitting}
+                            backendErrors={backendError}
+                        />
+                    </div>
+                </div>
+
+                {/* Info footer */}
+                <div className="flex items-center justify-center gap-2 text-center text-xs text-[var(--text-muted)]">
+                    <div className="h-1.5 w-1.5 rounded-full bg-[var(--accent-primary)]" />
+                    <span>Se usará el endpoint oficial <code className="rounded bg-[var(--surface-glass)] px-1.5 py-0.5">POST /api/websites/generate</code></span>
                 </div>
             </section>
         </ProtectedRoute>
     );
 }
-

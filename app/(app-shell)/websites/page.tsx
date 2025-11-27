@@ -1,6 +1,17 @@
 'use client';
 
 import { ChangeEvent, useMemo, useState } from "react";
+import Link from "next/link";
+import { 
+    Search, 
+    Filter, 
+    LayoutGrid, 
+    Plus, 
+    RefreshCw, 
+    AlertCircle,
+    Sparkles,
+    FolderOpen
+} from "lucide-react";
 
 import ProtectedRoute from "@/components/layout/ProtectedRoute";
 import WebsiteCard from "@/components/websites/WebsiteCard";
@@ -68,116 +79,214 @@ function WebsitesDashboard() {
 
     return (
         <section className="space-y-8">
-            <header className="space-y-2">
-                <p className="text-xs uppercase tracking-wide text-slate-500">
-                    Websites
-                </p>
-                <div className="flex flex-wrap items-end justify-between gap-4">
-                    <div>
-                        <h1 className="text-3xl font-semibold text-slate-900">
-                            Panel de sitios
-                        </h1>
-                        <p className="text-sm text-slate-600">
-                            Controla los sitios generados por la IA, busca por cliente y
-                            cambia el estado de publicación en un clic.
-                        </p>
+            {/* Header */}
+            <header className="relative">
+                <div className="flex flex-wrap items-start justify-between gap-6">
+                    <div className="flex items-center gap-4">
+                        <div className="relative">
+                            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[var(--accent-tertiary)] to-[var(--accent-primary)]">
+                                <LayoutGrid className="h-7 w-7 text-[var(--text-primary)]" />
+                            </div>
+                            <div className="absolute -inset-2 rounded-3xl bg-gradient-to-br from-[var(--accent-tertiary)] to-[var(--accent-primary)] opacity-30 blur-xl" />
+                        </div>
+                        <div>
+                            <div className="mb-1 flex items-center gap-2">
+                                <span className="text-xs uppercase tracking-[0.2em] text-[var(--text-muted)]">
+                                    Dashboard
+                                </span>
+                            </div>
+                            <h1 className="text-3xl font-bold text-[var(--text-primary)]">
+                                Mis Sitios Web
+                            </h1>
+                            <p className="mt-1 text-sm text-[var(--text-muted)]">
+                                Gestiona y publica tus sitios generados con IA
+                            </p>
+                        </div>
                     </div>
-                    <button
-                        type="button"
-                        onClick={() => dispatch(resetFilters())}
-                        className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-600 hover:border-slate-900"
-                    >
-                        Limpiar filtros
-                    </button>
+                    <div className="flex items-center gap-3">
+                        <button
+                            type="button"
+                            onClick={() => dispatch(resetFilters())}
+                            className="btn-ghost flex items-center gap-2"
+                        >
+                            <RefreshCw className="h-4 w-4" />
+                            Reset
+                        </button>
+                        <Link
+                            href="/websites/create"
+                            className="glow-button btn-primary flex items-center gap-2"
+                        >
+                            <Plus className="h-4 w-4" />
+                            Nuevo sitio
+                        </Link>
+                    </div>
                 </div>
             </header>
 
-            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            {/* Filters */}
+            <div className="card-glass rounded-2xl p-5">
+                <div className="mb-4 flex items-center gap-2 text-sm text-[var(--text-muted)]">
+                    <Filter className="h-4 w-4 text-[var(--accent-primary)]" />
+                    <span className="uppercase tracking-wide">Filtros</span>
+                </div>
                 <form className="grid gap-4 md:grid-cols-3">
-                    <label className="text-sm font-medium text-slate-700">
-                        Búsqueda
-                        <input
-                            type="search"
-                            value={filters.search ?? ""}
-                            onChange={handleSearchChange}
-                            placeholder="Nombre del cliente o slug"
-                            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
-                        />
-                    </label>
+                    <div className="group">
+                        <label className="block">
+                            <div className="mb-2 flex items-center gap-2 text-sm font-medium text-[var(--text-secondary)]">
+                                <Search className="h-4 w-4 text-[var(--accent-primary)]" />
+                                <span>Búsqueda</span>
+                            </div>
+                            <input
+                                type="search"
+                                value={filters.search ?? ""}
+                                onChange={handleSearchChange}
+                                placeholder="Nombre del cliente o slug..."
+                                className="input-modern"
+                            />
+                        </label>
+                    </div>
 
-                    <label className="text-sm font-medium text-slate-700">
-                        Estado
-                        <select
-                            value={
-                                typeof filters.isPublished === "boolean"
-                                    ? filters.isPublished
-                                        ? "published"
-                                        : "draft"
-                                    : "all"
-                            }
-                            onChange={handlePublishedChange}
-                            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
-                        >
-                            <option value="all">Todos</option>
-                            <option value="published">Solo publicados</option>
-                            <option value="draft">Solo borradores</option>
-                        </select>
-                    </label>
+                    <div className="group">
+                        <label className="block">
+                            <div className="mb-2 flex items-center gap-2 text-sm font-medium text-[var(--text-secondary)]">
+                                <Sparkles className="h-4 w-4 text-[var(--accent-primary)]" />
+                                <span>Estado</span>
+                            </div>
+                            <select
+                                value={
+                                    typeof filters.isPublished === "boolean"
+                                        ? filters.isPublished
+                                            ? "published"
+                                            : "draft"
+                                        : "all"
+                                }
+                                onChange={handlePublishedChange}
+                                className="input-modern cursor-pointer"
+                            >
+                                <option value="all">Todos los estados</option>
+                                <option value="published">Solo publicados</option>
+                                <option value="draft">Solo borradores</option>
+                            </select>
+                        </label>
+                    </div>
 
-                    <label className="text-sm font-medium text-slate-700">
-                        Límite
-                        <select
-                            value={filters.limit ?? limitOptions[0]}
-                            onChange={handleLimitChange}
-                            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-900 focus:outline-none"
-                        >
-                            {limitOptions.map((option) => (
-                                <option key={option} value={option}>
-                                    {option} resultados
-                                </option>
-                            ))}
-                        </select>
-                    </label>
+                    <div className="group">
+                        <label className="block">
+                            <div className="mb-2 flex items-center gap-2 text-sm font-medium text-[var(--text-secondary)]">
+                                <LayoutGrid className="h-4 w-4 text-[var(--accent-primary)]" />
+                                <span>Límite</span>
+                            </div>
+                            <select
+                                value={filters.limit ?? limitOptions[0]}
+                                onChange={handleLimitChange}
+                                className="input-modern cursor-pointer"
+                            >
+                                {limitOptions.map((option) => (
+                                    <option key={option} value={option}>
+                                        {option} resultados
+                                    </option>
+                                ))}
+                            </select>
+                        </label>
+                    </div>
                 </form>
             </div>
 
+            {/* Error State */}
             {error && (
-                <div className="rounded-lg border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
-                    Hubo un error al cargar los sitios.{" "}
-                    <button
-                        type="button"
-                        onClick={() => refetch()}
-                        className="font-semibold underline"
-                    >
-                        Reintentar
-                    </button>
+                <div className="flex items-start gap-4 rounded-2xl border border-[var(--error)]/30 bg-[var(--error)]/10 p-5">
+                    <AlertCircle className="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--error)]" />
+                    <div>
+                        <p className="font-medium text-[var(--error)]">
+                            Error al cargar los sitios
+                        </p>
+                        <p className="mt-1 text-sm text-[var(--error)]/80">
+                            Hubo un problema al obtener la lista de sitios web.
+                        </p>
+                        <button
+                            type="button"
+                            onClick={() => refetch()}
+                            className="mt-3 btn-secondary text-xs"
+                        >
+                            Reintentar
+                        </button>
+                    </div>
                 </div>
             )}
 
-            <div className="grid gap-4 md:grid-cols-2">
-                {isFetching && (
-                    <div className="col-span-full rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-500">
-                        Cargando sitios...
-                    </div>
-                )}
+            {/* Loading State */}
+            {isFetching && (
+                <div className="grid gap-4 md:grid-cols-2">
+                    {[1, 2, 3, 4].map((i) => (
+                        <div 
+                            key={i}
+                            className="h-72 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-glass)] shimmer"
+                        />
+                    ))}
+                </div>
+            )}
 
-                {!isFetching && websites.length === 0 && (
-                    <div className="col-span-full rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500">
-                        No se encontraron sitios para los filtros actuales.
+            {/* Empty State */}
+            {!isFetching && websites.length === 0 && (
+                <div className="relative overflow-hidden rounded-2xl border border-dashed border-[var(--border-strong)] p-12 text-center">
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[var(--accent-primary)]/5 to-[var(--accent-alt)]/5" />
+                    <div className="relative">
+                        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--surface-glass)]">
+                            <FolderOpen className="h-8 w-8 text-[var(--text-muted)]" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-[var(--text-primary)]">
+                            No hay sitios
+                        </h3>
+                        <p className="mt-2 text-sm text-[var(--text-muted)]">
+                            No se encontraron sitios para los filtros actuales.
+                        </p>
+                        <Link
+                            href="/websites/create"
+                            className="mt-6 inline-flex btn-primary items-center gap-2"
+                        >
+                            <Plus className="h-4 w-4" />
+                            Crear mi primer sitio
+                        </Link>
                     </div>
-                )}
+                </div>
+            )}
 
-                {websites.map((website) => (
-                    <WebsiteCard
-                        key={website.id}
-                        website={website}
-                        onTogglePublish={handleTogglePublish}
-                        onSelect={(id) => dispatch(setSelectedWebsiteId(id))}
-                        busy={currentToggleId === website.id}
-                        selected={selectedWebsiteId === website.id}
-                    />
-                ))}
-            </div>
+            {/* Websites Grid */}
+            {!isFetching && websites.length > 0 && (
+                <div className="grid gap-5 md:grid-cols-2">
+                    {websites.map((website, index) => (
+                        <div 
+                            key={website.id}
+                            className="animate-fade-in-up opacity-0"
+                            style={{ 
+                                animationDelay: `${index * 50}ms`,
+                                animationFillMode: 'forwards'
+                            }}
+                        >
+                            <WebsiteCard
+                                website={website}
+                                onTogglePublish={handleTogglePublish}
+                                onSelect={(id) => dispatch(setSelectedWebsiteId(id))}
+                                busy={currentToggleId === website.id}
+                                selected={selectedWebsiteId === website.id}
+                            />
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {/* Stats footer */}
+            {!isFetching && websites.length > 0 && (
+                <div className="flex items-center justify-center gap-4 text-xs text-[var(--text-muted)]">
+                    <span>
+                        Mostrando {websites.length} sitio{websites.length !== 1 && 's'}
+                    </span>
+                    <span className="h-1 w-1 rounded-full bg-[var(--text-muted)]" />
+                    <span>
+                        {websites.filter(w => w.isPublished).length} publicado{websites.filter(w => w.isPublished).length !== 1 && 's'}
+                    </span>
+                </div>
+            )}
         </section>
     );
 }
@@ -189,4 +298,3 @@ export default function WebsitesPage() {
         </ProtectedRoute>
     );
 }
-

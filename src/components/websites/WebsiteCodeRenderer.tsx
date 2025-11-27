@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import * as React from "react";
 
 type WebsiteCodeRendererProps = {
@@ -68,7 +68,8 @@ const useFormattedCode = (source: string) => {
 };
 
 const WebsiteCodeRenderer = ({ code, showCodePanel = false }: WebsiteCodeRendererProps) => {
-    const { formatted, formatError, ready: formatReady } = useFormattedCode(code);
+    const normalizedCode = useMemo(() => stripMarkdownCodeFence(code), [code]);
+    const { formatted, formatError, ready: formatReady } = useFormattedCode(normalizedCode);
     const [status, setStatus] = useState<ProcessStatus>("formatting");
     const [runtimeError, setRuntimeError] = useState<string | null>(null);
     const [Component, setComponent] = useState<React.ComponentType | null>(null);
@@ -194,6 +195,27 @@ return ${exportName};
 };
 
 export default WebsiteCodeRenderer;
+
+const stripMarkdownCodeFence = (raw: string) => {
+    const trimmed = raw.trim();
+
+    const fenceMatch = trimmed.match(
+        /^```(?:[a-z0-9_-]+)?\s*[\r\n]+([\s\S]*?)\s*```$/i,
+    );
+
+    if (fenceMatch) {
+        return fenceMatch[1].trim();
+    }
+
+    if (trimmed.startsWith("```")) {
+        const firstLineBreak = trimmed.indexOf("\n");
+        const withoutOpening =
+            firstLineBreak >= 0 ? trimmed.slice(firstLineBreak + 1) : trimmed;
+        return withoutOpening.replace(/```$/, "").trim();
+    }
+
+    return trimmed;
+};
 
 const sanitizeSource = (raw: string) => {
     let working = raw.trim();
