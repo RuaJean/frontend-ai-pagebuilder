@@ -2,6 +2,7 @@
 
 import { FormEvent, useMemo, useState } from "react";
 import { notFound, useParams, useSearchParams } from "next/navigation";
+import { Rocket } from "lucide-react";
 
 import JsonRenderer from "@/components/editor/JsonRenderer";
 import ProtectedRoute from "@/components/layout/ProtectedRoute";
@@ -9,6 +10,7 @@ import WebsiteCodeRenderer from "@/components/websites/WebsiteCodeRenderer";
 import {
     useApplyPromptMutation,
     useGetWebsiteBySlugQuery,
+    usePublishWebsiteMutation,
 } from "@/services/websitesApi";
 import type { PageContent } from "@/types/pageContent";
 import type { WebsiteDetail } from "@/types/websites";
@@ -136,7 +138,20 @@ const EditPromptBar = ({
         type: "success" | "error";
         message: string;
     } | null>(null);
+    const [showPublishConfirm, setShowPublishConfirm] = useState(false);
     const [applyPrompt, { isLoading }] = useApplyPromptMutation();
+    const [publishWebsite, { isLoading: isPublishing }] = usePublishWebsiteMutation();
+
+    const extractApiMessage = (error: unknown, fallback: string) => {
+        return error &&
+            typeof error === "object" &&
+            "data" in error &&
+            error.data &&
+            typeof error.data === "object" &&
+            "message" in error.data
+            ? String((error.data as { message?: string }).message)
+            : fallback;
+    };
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -174,27 +189,103 @@ const EditPromptBar = ({
             });
             await onRefresh();
         } catch (error) {
-            const apiMessage =
-                error &&
-                typeof error === "object" &&
-                "data" in error &&
-                error.data &&
-                typeof error.data === "object" &&
-                "message" in error.data
-                    ? String((error.data as { message?: string }).message)
-                    : "No se pudo aplicar el prompt. Intenta nuevamente.";
             setFeedback({
                 type: "error",
-                message: apiMessage,
+                message: extractApiMessage(
+                    error,
+                    "No se pudo aplicar el prompt. Intenta nuevamente.",
+                ),
+            });
+        }
+    };
+
+    const openPublishConfirm = () => {
+        if (!website.id) {
+            setFeedback({
+                type: "error",
+                message: "No se puede publicar porque falta el identificador.",
+            });
+            return;
+        }
+
+        setShowPublishConfirm(true);
+    };
+
+    const handlePublish = async () => {
+        if (!website.id) {
+            setFeedback({
+                type: "error",
+                message: "No se puede publicar porque falta el identificador.",
+            });
+            setShowPublishConfirm(false);
+            return;
+        }
+        try {
+            setFeedback(null);
+            setShowPublishConfirm(false);
+            await publishWebsite({
+                id: website.id,
+                body: {
+                    isPublished: true,
+                },
+            }).unwrap();
+            setFeedback({
+                type: "success",
+                message: "Sitio publicado correctamente. Actualizando vista...",
+            });
+            await onRefresh();
+        } catch (error) {
+            setFeedback({
+                type: "error",
+                message: extractApiMessage(
+                    error,
+                    "No se pudo publicar el sitio. Intenta nuevamente.",
+                ),
             });
         }
     };
 
     return (
-        <form
-            onSubmit={handleSubmit}
-            className="pointer-events-auto fixed bottom-6 left-6 z-50 flex w-[min(90vw,22rem)] flex-col gap-2 rounded-2xl border border-white/20 bg-slate-900/85 p-3 text-white shadow-2xl backdrop-blur"
-        >
+        <>
+            {showPublishConfirm && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center px-4">
+                    <button
+                        type="button"
+                        aria-label="Cerrar confirmación de publicación"
+                        className="absolute inset-0 bg-slate-950/70 backdrop-blur-sm"
+                        onClick={() => setShowPublishConfirm(false)}
+                    />
+                    <div className="relative z-[61] w-full max-w-sm rounded-2xl border border-white/15 bg-slate-950/95 p-5 text-white shadow-2xl">
+                        <p className="text-base font-semibold">
+                            ¿Deseas publicar este sitio ahora?
+                        </p>
+                        <p className="mt-1 text-sm text-white/70">
+                            El contenido quedará visible para tus clientes.
+                        </p>
+                        <div className="mt-6 flex justify-end gap-2 text-sm">
+                            <button
+                                type="button"
+                                onClick={() => setShowPublishConfirm(false)}
+                                className="rounded-lg border border-white/30 px-4 py-2 text-white transition hover:border-white/60"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handlePublish}
+                                disabled={isPublishing}
+                                className="rounded-lg bg-emerald-500 px-4 py-2 font-semibold text-emerald-950 transition hover:bg-emerald-400 disabled:opacity-40"
+                            >
+                                {isPublishing ? "Publicando..." : "Publicar"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            <form
+                onSubmit={handleSubmit}
+                className="pointer-events-auto fixed bottom-6 left-6 z-50 flex w-[min(90vw,22rem)] flex-col gap-2 rounded-2xl border border-white/20 bg-slate-900/85 p-3 text-white shadow-2xl backdrop-blur"
+            >
             <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.3em] text-white/60">
                 <span>Editar página</span>
                 <span>{website.isPublished ? "Publicado" : "Borrador"}</span>
@@ -214,9 +305,25 @@ const EditPromptBar = ({
                 >
                     {isLoading ? "Aplicando..." : "Aplicar prompt"}
                 </button>
-                <p className="text-[11px] text-white/60">
-                    {website.clientName ?? website.slug ?? "Proyecto sin nombre"}
-                </p>
+                <div className="ml-auto flex items-center gap-2 text-[11px] text-white/60">
+                    <p className="text-[11px] text-white/60">
+                        {website.clientName ?? website.slug ?? "Proyecto sin nombre"}
+                    </p>
+                    <button
+                        type="button"
+                        onClick={openPublishConfirm}
+                        disabled={isPublishing}
+                        title={
+                            website.isPublished
+                                ? "El sitio ya está publicado"
+                                : "Publicar sitio"
+                        }
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white transition hover:border-emerald-300 hover:text-emerald-300 disabled:opacity-40"
+                    >
+                        <Rocket className="h-4 w-4" />
+                        <span className="sr-only">Publicar sitio</span>
+                    </button>
+                </div>
             </div>
             {feedback && (
                 <p
@@ -227,7 +334,8 @@ const EditPromptBar = ({
                     {feedback.message}
                 </p>
             )}
-        </form>
+            </form>
+        </>
     );
 };
 
