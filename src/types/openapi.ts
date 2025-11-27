@@ -741,6 +741,7 @@ export interface components {
             targetAudience?: string | null;
             brandColors?: string | null;
             style?: string | null;
+            referenceWebsiteUrl?: string | null;
             contentJson: string;
             seoMetadata?: string | null;
             slug?: string | null;
@@ -757,6 +758,7 @@ export interface components {
             brandColors?: string | null;
             style?: string | null;
             tone?: string | null;
+            referenceWebsiteUrl?: string | null;
             additionalContext?: string | null;
         };
         LoginRequest: {

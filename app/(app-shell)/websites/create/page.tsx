@@ -136,6 +136,7 @@ export default function CreateWebsitePage() {
                     targetAudience: data.targetAudience ?? null,
                     brandColors: data.brandColors ?? null,
                     style: data.style ?? null,
+                    referenceWebsiteUrl: data.referenceWebsiteUrl ?? null,
                     contentJson,
                     seoMetadata: null,
                     slug: slug ?? null,

@@ -16,7 +16,8 @@ import {
     StickyNote,
     Sparkles,
     RotateCcw,
-    AlertCircle
+    AlertCircle,
+    Globe
 } from "lucide-react";
 
 import type { components } from "@/types/openapi";
@@ -25,6 +26,7 @@ type GenerateWebsiteRequest = components["schemas"]["GenerateWebsiteRequest"];
 
 type FormState = GenerateWebsiteRequest & {
     additionalNotes?: string;
+    referenceWebsiteUrl: string;
 };
 
 const initialState: FormState = {
@@ -40,6 +42,7 @@ const initialState: FormState = {
     tone: "",
     additionalContext: "",
     additionalNotes: "",
+    referenceWebsiteUrl: "",
 };
 
 type FieldKey = keyof GenerateWebsiteRequest | "additionalNotes";
@@ -86,6 +89,8 @@ type InputFieldProps = {
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     placeholder?: string;
     delay?: number;
+    error?: string | null;
+    helperText?: string;
 };
 
 const InputField = ({ 
@@ -96,7 +101,9 @@ const InputField = ({
     value, 
     onChange, 
     placeholder,
-    delay = 0
+    delay = 0,
+    error,
+    helperText,
 }: InputFieldProps) => (
     <div 
         className="animate-fade-in-up opacity-0 group"
@@ -115,12 +122,20 @@ const InputField = ({
                     value={value}
                     onChange={onChange}
                     placeholder={placeholder}
-                    className="input-modern pr-4 pl-4"
+                    aria-invalid={Boolean(error)}
+                    className={`input-modern pr-4 pl-4 ${error ? "border-[var(--error)] focus-visible:ring-[var(--error)]" : ""}`}
                 />
                 <div className="pointer-events-none absolute inset-0 rounded-xl opacity-0 transition-opacity group-focus-within:opacity-100"
                      style={{ boxShadow: '0 0 20px var(--accent-glow)' }} 
                 />
             </div>
+            {error ? (
+                <p className="mt-2 text-xs text-[var(--error)]">{error}</p>
+            ) : (
+                helperText && (
+                    <p className="mt-2 text-xs text-[var(--text-muted)]">{helperText}</p>
+                )
+            )}
         </label>
     </div>
 );
@@ -166,10 +181,34 @@ const TextareaField = ({
 
 const WebsiteForm = ({ isSubmitting = false, backendErrors, onSubmit }: WebsiteFormProps) => {
     const [form, setForm] = useState<FormState>(initialState);
+    const trimmedReferenceWebsiteUrl = form.referenceWebsiteUrl.trim();
+    const referenceWebsiteUrlError = useMemo(() => {
+        if (!trimmedReferenceWebsiteUrl) {
+            return null;
+        }
+
+        try {
+            const parsed = new URL(trimmedReferenceWebsiteUrl);
+            if (parsed.protocol !== "https:") {
+                return "La URL debe iniciar con https://";
+            }
+            if (!parsed.hostname) {
+                return "Proporciona un dominio válido.";
+            }
+        } catch {
+            return "Ingresa una URL válida.";
+        }
+
+        return null;
+    }, [trimmedReferenceWebsiteUrl]);
 
     const canSubmit = useMemo(
-        () => form.clientName.trim().length > 0 && form.clientEmail.trim().length > 0,
-        [form.clientEmail, form.clientName],
+        () =>
+            form.clientName.trim().length > 0 &&
+            form.clientEmail.trim().length > 0 &&
+            trimmedReferenceWebsiteUrl.length > 0 &&
+            !referenceWebsiteUrlError,
+        [form.clientEmail, form.clientName, referenceWebsiteUrlError, trimmedReferenceWebsiteUrl],
     );
 
     const handleChange =
@@ -183,9 +222,11 @@ const WebsiteForm = ({ isSubmitting = false, backendErrors, onSubmit }: WebsiteF
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
-        if (!canSubmit) {
+        if (!canSubmit || referenceWebsiteUrlError) {
             return;
         }
+
+        const normalizedReferenceWebsiteUrl = trimmedReferenceWebsiteUrl;
 
         const payload: GenerateWebsiteRequest = {
             clientName: form.clientName,
@@ -199,6 +240,7 @@ const WebsiteForm = ({ isSubmitting = false, backendErrors, onSubmit }: WebsiteF
             style: form.style || null,
             tone: form.tone || null,
             additionalContext: form.additionalContext || null,
+            referenceWebsiteUrl: normalizedReferenceWebsiteUrl,
         };
 
         await onSubmit(payload);
@@ -253,6 +295,18 @@ const WebsiteForm = ({ isSubmitting = false, backendErrors, onSubmit }: WebsiteF
                         onChange={handleChange("clientSocials")}
                         placeholder="@instagram, linkedin.com/company/..."
                         delay={150}
+                    />
+                    <InputField
+                        label="Sitio web de referencia"
+                        icon={<Globe className="h-4 w-4" />}
+                        required
+                        type="url"
+                        value={form.referenceWebsiteUrl}
+                        onChange={handleChange("referenceWebsiteUrl")}
+                        placeholder="https://ejemplo.com"
+                        delay={180}
+                        helperText="Debe incluir el protocolo https://"
+                        error={referenceWebsiteUrlError}
                     />
                 </div>
             </div>
