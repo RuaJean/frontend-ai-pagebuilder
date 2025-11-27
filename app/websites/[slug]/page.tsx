@@ -1,12 +1,15 @@
 'use client';
 
-import { useMemo } from "react";
+import { FormEvent, useMemo, useState } from "react";
 import { notFound, useParams, useSearchParams } from "next/navigation";
 
 import JsonRenderer from "@/components/editor/JsonRenderer";
 import ProtectedRoute from "@/components/layout/ProtectedRoute";
 import WebsiteCodeRenderer from "@/components/websites/WebsiteCodeRenderer";
-import { useGetWebsiteBySlugQuery } from "@/services/websitesApi";
+import {
+    useApplyPromptMutation,
+    useGetWebsiteBySlugQuery,
+} from "@/services/websitesApi";
 import type { PageContent } from "@/types/pageContent";
 import type { WebsiteDetail } from "@/types/websites";
 
@@ -39,6 +42,7 @@ const WebsitePageInner = ({
         error,
         isFetching,
         isLoading,
+        refetch,
     } = useGetWebsiteBySlugQuery(slug, {
         skip: !slug,
     });
@@ -71,7 +75,9 @@ const WebsitePageInner = ({
 
     return (
         <div className="relative min-h-screen bg-black">
-            {editMode && <EditOverlay data={data} slug={slug} />}
+            {editMode && data && (
+                <EditPromptBar website={data} onRefresh={refetch} />
+            )}
             {codeSource ? (
                 <WebsiteCodeRenderer code={codeSource} showCodePanel={editMode} />
             ) : content ? (
@@ -118,26 +124,112 @@ const EmptyContentState = ({ editMode }: { editMode: boolean }) => (
     </div>
 );
 
-const EditOverlay = ({ data, slug }: { data: WebsiteDetail; slug: string }) => (
-    <div className="pointer-events-none fixed bottom-32 right-6 z-50 w-[min(90vw,32rem)] rounded-xl border border-white/30 bg-slate-900/75 px-4 py-3 text-xs text-white shadow-2xl backdrop-blur">
-        <div className="flex flex-col gap-2">
+const EditPromptBar = ({
+    website,
+    onRefresh,
+}: {
+    website: WebsiteDetail;
+    onRefresh: () => Promise<unknown>;
+}) => {
+    const [prompt, setPrompt] = useState("");
+    const [feedback, setFeedback] = useState<{
+        type: "success" | "error";
+        message: string;
+    } | null>(null);
+    const [applyPrompt, { isLoading }] = useApplyPromptMutation();
+
+    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const trimmedPrompt = prompt.trim();
+
+        if (!trimmedPrompt) {
+            return;
+        }
+
+        const expectedUpdatedAt = website.updatedAt;
+
+        if (!expectedUpdatedAt) {
+            setFeedback({
+                type: "error",
+                message: "No se puede editar porque falta la marca de actualización.",
+            });
+            return;
+        }
+
+        try {
+            setFeedback(null);
+            await applyPrompt({
+                id: website.id,
+                body: {
+                    prompt: trimmedPrompt,
+                    reasoningAdvanced: false,
+                    targetElementId: null,
+                    expectedUpdatedAt,
+                },
+            }).unwrap();
+            setPrompt("");
+            setFeedback({
+                type: "success",
+                message: "Cambios aplicados. Actualizando vista...",
+            });
+            await onRefresh();
+        } catch (error) {
+            const apiMessage =
+                error &&
+                typeof error === "object" &&
+                "data" in error &&
+                error.data &&
+                typeof error.data === "object" &&
+                "message" in error.data
+                    ? String((error.data as { message?: string }).message)
+                    : "No se pudo aplicar el prompt. Intenta nuevamente.";
+            setFeedback({
+                type: "error",
+                message: apiMessage,
+            });
+        }
+    };
+
+    return (
+        <form
+            onSubmit={handleSubmit}
+            className="pointer-events-auto fixed bottom-6 left-6 z-50 flex w-[min(90vw,22rem)] flex-col gap-2 rounded-2xl border border-white/20 bg-slate-900/85 p-3 text-white shadow-2xl backdrop-blur"
+        >
             <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.3em] text-white/60">
-                <span>Modo edición</span>
-                <span>{data.isPublished ? "Publicado" : "Borrador"}</span>
+                <span>Editar página</span>
+                <span>{website.isPublished ? "Publicado" : "Borrador"}</span>
             </div>
-            <div className="flex flex-col gap-1">
-                {/* <p className="text-sm font-semibold leading-tight text-white">
-                    {data.clientName ?? slug}
-                </p> */}
-                <p className="text-[11px] text-white/70">{slug}</p>
+            <textarea
+                className="h-20 w-full resize-none rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/40 focus:border-emerald-400 focus:outline-none"
+                placeholder="Describe el cambio visual o de contenido que necesitas..."
+                value={prompt}
+                onChange={(event) => setPrompt(event.target.value)}
+                disabled={isLoading}
+            />
+            <div className="flex items-center gap-3">
+                <button
+                    type="submit"
+                    className="rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-emerald-950 transition hover:bg-emerald-400 disabled:opacity-40"
+                    disabled={isLoading || !prompt.trim()}
+                >
+                    {isLoading ? "Aplicando..." : "Aplicar prompt"}
+                </button>
+                <p className="text-[11px] text-white/60">
+                    {website.clientName ?? website.slug ?? "Proyecto sin nombre"}
+                </p>
             </div>
-            {/* <div className="flex items-center justify-between text-[11px] text-white/70">
-                <span>{data.clientEmail}</span>
-                {data.clientWhatsapp && <span>{data.clientWhatsapp}</span>}
-            </div> */}
-        </div>
-    </div>
-);
+            {feedback && (
+                <p
+                    className={`text-xs ${
+                        feedback.type === "success" ? "text-emerald-300" : "text-rose-300"
+                    }`}
+                >
+                    {feedback.message}
+                </p>
+            )}
+        </form>
+    );
+};
 
 const isLikelyCustomCode = (value: string | null): value is string => {
     if (!value) {
